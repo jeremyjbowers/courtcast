@@ -2,6 +2,7 @@ import datetime
 import json
 
 from bs4 import BeautifulSoup
+from dateutil.parser import *
 from fabric.api import *
 from feedgen.feed import FeedGenerator
 import requests
@@ -50,12 +51,12 @@ def scrape_to_json():
 
     payload = json.dumps(payload)
 
-    with open('output.json', 'w') as writefile:
+    with open('cases.json', 'w') as writefile:
         writefile.write(payload)
 
 @task
 def generate_podcast():
-    with open('output.json', 'r') as readfile:
+    with open('cases.json', 'r') as readfile:
         terms = list(json.loads(readfile.read()))
 
     for term in terms:
@@ -68,13 +69,17 @@ def generate_podcast():
         fg.logo('http://upload.wikimedia.org/wikipedia/commons/thumb/8/8b/Government_icon.svg/200px-Government_icon.svg.png')
         fg.subtitle('Oral arguments to the Supreme Court in the %s term.' % term['term'])
         fg.link(href='http://www.supremecourt.gov/oral_arguments/%s' % term['term'], rel='self')
+
         for case in term['cases']:
+            published = parse(case['date'], ignoretz=True)
             title = "(%s) %s" % (term['term'], case['name'])
             description = "Argued: %s Docket number: %s" % (case['date'], case['docket'])
+
             fe = fg.add_entry()
             fe.id(case['mp3'])
             fe.link(href=case['mp3'], rel='self')
             fe.content(description)
             fe.title(title)
+            fe.published()
 
         fg.atom_file('podcasts/%s.xml' % term['term'])
