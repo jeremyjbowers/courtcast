@@ -60,10 +60,10 @@ def generate_podcast():
     fg.title('CourtCast')
     fg.author({'name':'Jeremy Bowers', 'email':'jeremyjbowers@gmail.com'})
     fg.language('en')
-    fg.link(href='http://example.com', rel='alternate')
-    fg.logo('http://ex.com/logo.jpg')
-    fg.subtitle('This is a cool feed!')
-    fg.link(href='http://larskiesow.de/test.atom', rel='self')
+    fg.link(href='http://www.supremecourt.gov/oral_arguments/', rel='alternate')
+    fg.logo('http://upload.wikimedia.org/wikipedia/commons/thumb/8/8b/Government_icon.svg/200px-Government_icon.svg.png')
+    fg.subtitle('Oral arguments to the Supreme Court')
+    fg.link(href='http://www.supremecourt.gov/oral_arguments/', rel='self')
 
     with open('output.json', 'r') as readfile:
         terms = list(json.loads(readfile.read()))
