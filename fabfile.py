@@ -55,20 +55,19 @@ def scrape_to_json():
 
 @task
 def generate_podcast():
-    fg = FeedGenerator()
-    fg.id('https://jeremybowers.com/courtcast/')
-    fg.title('CourtCast')
-    fg.author({'name':'Jeremy Bowers', 'email':'jeremyjbowers@gmail.com'})
-    fg.language('en')
-    fg.link(href='http://www.supremecourt.gov/oral_arguments/', rel='alternate')
-    fg.logo('http://upload.wikimedia.org/wikipedia/commons/thumb/8/8b/Government_icon.svg/200px-Government_icon.svg.png')
-    fg.subtitle('Oral arguments to the Supreme Court')
-    fg.link(href='http://www.supremecourt.gov/oral_arguments/', rel='self')
-
     with open('output.json', 'r') as readfile:
         terms = list(json.loads(readfile.read()))
 
     for term in terms:
+        fg = FeedGenerator()
+        fg.id('https://jeremybowers.com/courtcast/%s' % term['term'])
+        fg.title('CourtCast: %s term' % term['term'])
+        fg.author({'name':'Jeremy Bowers', 'email':'jeremyjbowers@gmail.com'})
+        fg.language('en')
+        fg.link(href='http://www.supremecourt.gov/oral_arguments/', rel='alternate')
+        fg.logo('http://upload.wikimedia.org/wikipedia/commons/thumb/8/8b/Government_icon.svg/200px-Government_icon.svg.png')
+        fg.subtitle('Oral arguments to the Supreme Court in the %s term.' % term['term'])
+        fg.link(href='http://www.supremecourt.gov/oral_arguments/%s' % term['term'], rel='self')
         for case in term['cases']:
             title = "(%s) %s" % (term['term'], case['name'])
             description = "Argued: %s Docket number: %s" % (case['date'], case['docket'])
@@ -78,5 +77,4 @@ def generate_podcast():
             fe.content(description)
             fe.title(title)
 
-    fg.atom_file('atom.xml')
-    fg.rss_file('rss.xml')
+        fg.atom_file('podcasts/%s.xml' % term['term'])
