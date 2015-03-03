@@ -3,6 +3,7 @@ import json
 
 from bs4 import BeautifulSoup
 from dateutil.parser import *
+import dateutil.tz
 from fabric.api import *
 from feedgen.feed import FeedGenerator
 import requests
@@ -71,7 +72,7 @@ def generate_podcast():
         fg.link(href='http://www.supremecourt.gov/oral_arguments/%s' % term['term'], rel='self')
 
         for case in term['cases']:
-            published = parse(case['date'], ignoretz=True)
+            published = parse(case['date']).replace(tzinfo=dateutil.tz.gettz('est'))
             title = "(%s) %s" % (term['term'], case['name'])
             description = "Argued: %s Docket number: %s" % (case['date'], case['docket'])
 
@@ -80,6 +81,7 @@ def generate_podcast():
             fe.link(href=case['mp3'], rel='self')
             fe.content(description)
             fe.title(title)
-            fe.published()
+            fe.published(published)
+            fe.updated(published)
 
         fg.atom_file('podcasts/%s.xml' % term['term'])
